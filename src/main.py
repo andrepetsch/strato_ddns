@@ -59,7 +59,7 @@ class strato_ddns:
                             self.ipv6 = value
 
         except Exception as e:
-            print("Could not read .conf: ", str(e))
+            print("Could not process .conf: ", str(e))
         
 
 if __name__ == '__main__':
