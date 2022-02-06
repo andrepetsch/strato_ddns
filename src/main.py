@@ -1,10 +1,16 @@
-import httplib
-import daemon
+#import httplib
+#import daemon
 import ipaddress
 import argparse
 
+from sqlalchemy import true
+
 class strato_ddns:
-    def __init__(self):
+
+    def __init__(self, config_path = "./strato_ddns.conf", debug = False):
+
+        self.debug = debug
+        # init variables
         self.daemon = 3600
         self.server = "dyndns.strato.com"
         self.query_url = "/nic/update?"
@@ -19,8 +25,7 @@ class strato_ddns:
         self.ipv6_dns = ""
         self.ipv6_real = ""
 
-    def __init__(self, config_path = "./strato_ddns.conf"):
-        self.__init__()
+        # read config
         self.read_config(config_path=config_path)
 
         if self.login=="" or self.password=="" or self.domain == []:
@@ -42,22 +47,25 @@ class strato_ddns:
                     pass
                 else:
                     c = l.split('=')
-                    option = str(c[0])
+                    option = str(c[0]).strip()
                     value = c[1]
+                    
+                    if self.debug: print("option:", option, "\tvalue:", value)
+
                     if option == "daemon":
                         self.daemon = int(value)
                     elif option == "server":
-                        self.server = str(value)
+                        self.server = str(value).strip()
                     elif option == "query_url":
-                        self.query_url = str(value)
+                        self.query_url = str(value).strip()
                     elif option == "login":
-                        self.login = str(value)
+                        self.login = str(value).strip()
                     elif option == "password":
-                        self.password = str(value)
+                        self.password = str(value).strip()
                     elif option == "domain":
-                        self.domain= str(value).split(',')
+                        self.domain= str(value).strip().split(',')
                     elif option == "ipv4":
-                        value = str(value)
+                        value = str(value).strip()
                         if value == "web":
                             self.ipv4 = value
                         else:
@@ -65,7 +73,7 @@ class strato_ddns:
                             ip = ipaddress.ip_address(value)
                             self.ipv4 = value                            
                     elif option == "ipv6":
-                        value = str(value)
+                        value = str(value).strip()
                         if value == "web":
                             self.ipv6 = value
                         else:
@@ -114,8 +122,17 @@ if __name__ == '__main__':
         type=str,
         default="../strato_ddns.conf",
         required=False
+        )
+    parser.add_argument(
+        '--debug',
+        '-d',
+        help="turn on debug information",
+        action="store_true"
     )
+
     args = parser.parse_args()
 
-    s = strato_ddns(args.config)
-    print(s)
+    debug = False
+    if args.debug: debug = True
+
+    s = strato_ddns(config_path=args.config, debug=debug)
