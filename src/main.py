@@ -1,4 +1,4 @@
-import httplib, daemon
+import httplib, daemon, ipaddress
 
 class strato_ddns:
     def __init__(self):
@@ -41,11 +41,22 @@ class strato_ddns:
                     elif option == "domain":
                         self.domain= str(value).split(',')
                     elif option == "ipv4":
-                        # TODO: check for 'web' or valid ip-address
-                        self.ipv4 = str(value)
+                        value = str(value)
+                        if value == "web":
+                            self.ipv4 = value
+                        else:
+                            # parses to ip, throws error if no ip given
+                            ip = ipaddress.ip_address(value)
+                            self.ipv4 = value                            
+                        
                     elif option == "ipv6":
-                        # TODO: check for 'web' or valid ip-address
-                        self.ipv6 = str(value)
+                        value = str(value)
+                        if value == "web":
+                            self.ipv6 = value
+                        else:
+                            # parses to ip, throws error if no ip given
+                            ip = ipaddress.ip_address(value)
+                            self.ipv6 = value
 
         except Exception as e:
             print("Could not read .conf: ", str(e))
