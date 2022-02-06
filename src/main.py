@@ -34,6 +34,8 @@ class strato_ddns:
             raise Exception("Missing information (IPv4/IPv6) in .conf")
 
     def read_config(self, config_path):
+        if self.debug: print("reading and processing debug file")
+        
         f = open(config_path)
         try:
             lines = f.readlines()
