@@ -2,8 +2,7 @@
 #import daemon
 import ipaddress
 import argparse
-
-from sqlalchemy import true
+import dns.resolver as resolver
 
 class strato_ddns:
 
@@ -32,6 +31,10 @@ class strato_ddns:
             raise Exception("Missing information (login/pwd/domain) in .conf")
         if self.ipv4=="" or self.ipv6=="":
             raise Exception("Missing information (IPv4/IPv6) in .conf")
+
+        # prepare resolver
+        self.resolver = resolver.Resolver()
+        self.resolver.nameservers=['8.8.8.8', '8.8.4.4'] # TODO: make changeble
 
     def read_config(self, config_path):
         if self.debug: print("reading and processing debug file")
@@ -138,3 +141,5 @@ if __name__ == '__main__':
     if args.debug: debug = True
 
     s = strato_ddns(config_path=args.config, debug=debug)
+
+    
