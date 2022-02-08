@@ -11,9 +11,10 @@ import base64
 
 class strato_ddns:
 
-    def __init__(self, config_path = "./strato_ddns.conf", debug = False):
+    def __init__(self, config_path = "./strato_ddns.conf", debug = False, dryrun = False):
 
         self.debug = debug
+        self.dry = dryrun
         # init variables
         self.daemon = 3600
         self.server = "dyndns.strato.com"
@@ -176,16 +177,17 @@ class strato_ddns:
                 # Now all calls to urllib.request.urlopen use our opener.
                 urllib.request.install_opener(self.opener)
 
-                update_response = urllib.request.urlopen(update_string)
-                code= update_response.code
-                if str(code) != "200":
-                    print("Error-Code:", code)
+                if not self.dry: 
+                    update_response = urllib.request.urlopen(update_string)
+                    code= update_response.code
+                    if str(code) != "200":
+                        print("Error-Code:", code)
 
-                update_response = update_response.read().decode('utf_8')
-                if update_response.startswith("abuse"):
-                    print("ABUSE:", update_response)
-                else:
-                    print("whatever:", update_response)
+                    update_response = update_response.read().decode('utf_8')
+                    if update_response.startswith("abuse"):
+                        print("ABUSE:", update_response)
+                    else:
+                        print("whatever:", update_response)
                 # TODO: log response
 
 
@@ -205,13 +207,19 @@ if __name__ == '__main__':
         help="turn on debug information",
         action="store_true"
     )
+    parser.add_argument(
+        '--dryrun',
+        '-t',
+        help='run dry, do not actualy set anything new',
+        action='store_true'
+    )
 
     args = parser.parse_args()
 
     debug = False
     if args.debug: debug = True
 
-    s = strato_ddns(config_path=args.config, debug=debug)
+    s = strato_ddns(config_path=args.config, debug=debug, dryrun = args.dryrun)
     while True:
         s.run()
         time.sleep(1800)
