@@ -29,6 +29,8 @@ class strato_ddns:
         self.ipv6 = "" # web?
         self.ipv6_dns = ""
         self.ipv6_real = ""
+        self.ipv6_suffix = ""
+        self.nameservers=['8.8.8.8', '8.8.4.4', '2001:4860:4860::8888', '2001:4860:4860::8844']
 
         # read config
         self.read_config(config_path=config_path)
@@ -37,10 +39,13 @@ class strato_ddns:
             raise Exception("Missing information (login/pwd/domain) in .conf")
         if self.ipv4=="" or self.ipv6=="":
             raise Exception("Missing information (IPv4/IPv6) in .conf")
+        # if ipv6 is web but no suffix given
+        if self.ipv6 == "web" and self.ipv6_suffix=="":
+            raise Exception("Missing IPv6 suffix, please lookup in your router!")
 
         # prepare resolver
         self.resolver = resolver.Resolver()
-        self.resolver.nameservers=['8.8.8.8', '8.8.4.4', '2001:4860:4860::8888', '2001:4860:4860::8844'] # TODO: make changeble
+        self.resolver.nameservers=self.nameservers
 
         # prepare urllib
         # create a password manager
@@ -89,6 +94,8 @@ class strato_ddns:
                         self.password = str(value).strip()
                     elif option == "domain":
                         self.domain= str(value).strip().split(',')
+                    elif option == "nameserver":
+                        self.nameservers= str(value).strip().split(',')
                     elif option == "ipv4":
                         value = str(value).strip()
                         if value == "web":
@@ -105,6 +112,9 @@ class strato_ddns:
                             # parses to ip, throws error if no ip given
                             ip = ipaddress.ip_address(value)
                             self.ipv6 = value
+                    elif option == "ipv6_suffix":
+                            ip = ipaddress.ip_address(value)
+                            self.ipv6_suffix = value
                     else:
                         # unexpected arguments in configuration
                         raise Exception("invalid configuration")
@@ -122,7 +132,6 @@ class strato_ddns:
         for d in self.domain:
             # form updatestring
             if self.debug: print("\nSTART: update run for", d)    
-            change = False
             # prepare IPv4
             if self.ipv4 != "":
                 self.ipv4_dns = self.resolver.query(d, 'A')
@@ -130,18 +139,15 @@ class strato_ddns:
                 #elif len(self.ipv4_dns) >= 1: self.ipv4_dns = self.ipv4_dns[0]
                 else: self.ipv4_dns = self.ipv4_dns[0] 
                 if self.debug: print("Resolved domain",d,"to IPv4", self.ipv4_dns)
+
+                # if ipv4==web -> lookup real ip, else use static
                 if self.ipv4 == "web":
                     self.ipv4_real = urllib.request.urlopen('http://ipv4.ident.me').read().decode('utf8')
-                    if self.ipv4_dns != self.ipv4_real: change=True
                     if self.debug: print("Real external IPv4 is",self.ipv4_real)
                 else:
-                    if self.ipv4 != self.ipv4_dns:
-                        self.ipv4_real=self.ipv4
-                        change=True
-                        if self.debug: print("Static external IPv4 is",self.ipv4_real)
-                    else:
-                        self.ipv4_real=self.ipv4
-                        if self.debug: print("Static external IPv4 is up to date! -",self.ipv4_real)
+                    self.ipv4_real=self.ipv4
+                    if self.debug: print("Static external IPv4 is",self.ipv4_real)
+                    
             # prepare IPv6
             if self.ipv6 != "":
                 self.ipv6_dns = self.resolver.query(d, 'AAAA')
@@ -151,7 +157,6 @@ class strato_ddns:
                 if self.debug: print("Resolved domain",d,"to IPv6", self.ipv6_dns)
                 if self.ipv6 == "web":
                     self.ipv6_real = urllib.request.urlopen('http://ipv6.ident.me').read().decode('utf8')
-                    if self.ipv6_dns != self.ipv6_real: change=True
                     if self.debug: print("Real external IPv6 is",self.ipv6_real)
                 else:
                     if self.ipv6 != self.ipv6_dns:
@@ -163,11 +168,18 @@ class strato_ddns:
                         if self.debug: print("Static external IPv6 is up to date! -",self.ipv6_real)
             
             # if change is True, a update is necessary
-            if change:
+            if self.ipv4_dns != self.ipv4_real or self.ipv6_dns != self.ipv6_real:
                 if self.debug: print("\nUPDATE NECESSARY")
                 update_string = "https://" +self.server+self.query_url
                 update_string = update_string + "hostname=" + d + "&"
-                update_string = update_string + "myip=" + self.ipv4_real + "," + self.ipv6_real #
+                update_string = update_string + "myip="
+                if self.ipv4 != "":
+                    update_string = update_string + self.ipv4_real
+                if self.ipv4!="" and self.ipv6 != "":
+                    update_string = update_string + ","
+                if self.ipv6 != "":
+                    update_string = update_string + self.ipv6_real
+
                 if self.debug: print("\nUPDATESTRING:",update_string)
 
                 # use the opener to fetch a URL
