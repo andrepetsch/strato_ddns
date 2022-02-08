@@ -171,7 +171,14 @@ class strato_ddns:
                 if self.debug: print("\nUPDATE NECESSARY")
                 update_string = "https://" +self.server+self.query_url
                 update_string = update_string + "hostname=" + d + "&"
-                update_string = update_string + "myip=" + self.ipv4_real + "," + self.ipv6_real #
+                update_string = update_string + "myip="
+                if self.ipv4 != "":
+                    update_string = update_string + self.ipv4_real
+                if self.ipv4!="" and self.ipv6 != "":
+                    update_string = update_string + ","
+                if self.ipv6 != "":
+                    update_string = update_string + self.ipv6_real #
+                    
                 if self.debug: print("\nUPDATESTRING:",update_string)
 
                 # use the opener to fetch a URL
