@@ -167,7 +167,7 @@ class strato_ddns:
                         if self.debug: print("Static external IPv6 is up to date! -",self.ipv6_real)
             
             # if change is True, a update is necessary
-            if change:
+            if self.ipv4_dns != self.ipv4_real or self.ipv6_dns != self.ipv6_real:
                 if self.debug: print("\nUPDATE NECESSARY")
                 update_string = "https://" +self.server+self.query_url
                 update_string = update_string + "hostname=" + d + "&"
@@ -177,8 +177,8 @@ class strato_ddns:
                 if self.ipv4!="" and self.ipv6 != "":
                     update_string = update_string + ","
                 if self.ipv6 != "":
-                    update_string = update_string + self.ipv6_real #
-                    
+                    update_string = update_string + self.ipv6_real
+
                 if self.debug: print("\nUPDATESTRING:",update_string)
 
                 # use the opener to fetch a URL
