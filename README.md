@@ -18,7 +18,7 @@ A sample configuration is given.
 - `ipv4`: use `web` for automatic lookup, use static IP if available
 - `ipv6`: see `ipv4`, ***if `web` is used, `ipv6_suffix` must be set***
 - `ipv6_suffix`: your router might give your host a stativ IPv6 suffix. You must use this, your public IPv6 ***won't work*** with port forwarding only! If the Network changes the software will use the new Network but the same IPv6 suffix.
-- `nameserver`: optionaly set your own nameservers to lookup the acually used IP-Addresses seperated by "`,`". Standard is: *8.8.8.8,8.8.4.4, 2001:4860:4860::8888, 2001:4860:4860::8844*
+- `nameserver`: optionaly set your own nameservers to lookup the acually used IP-Addresses seperated by "`,`". Standard is: *8.8.8.8, 8.8.4.4, 2001:4860:4860::8888, 2001:4860:4860::8844*
 
 ## Commandline arguments
 - `-h`: help
