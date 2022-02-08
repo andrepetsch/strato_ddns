@@ -137,7 +137,7 @@ class strato_ddns:
                 self.ipv4_dns = self.resolver.query(d, 'A')
                 if len(self.ipv4_dns) < 0: self.ipv4_dns = 'none'
                 #elif len(self.ipv4_dns) >= 1: self.ipv4_dns = self.ipv4_dns[0]
-                else: self.ipv4_dns = self.ipv4_dns[0] 
+                else: self.ipv4_dns = str(self.ipv4_dns[0])
                 if self.debug: print("Resolved domain",d,"to IPv4\t", self.ipv4_dns)
 
                 # if ipv4==web -> lookup real ip, else use static
@@ -153,7 +153,7 @@ class strato_ddns:
                 self.ipv6_dns = self.resolver.query(d, 'AAAA')
                 if len(self.ipv6_dns) < 0: self.ipv6_dns = 'none'
                 #elif len(self.ipv6_dns) >= 1: self.ipv6_dns = self.ipv6_dns[0]
-                else: self.ipv6_dns = self.ipv6_dns[0] 
+                else: self.ipv6_dns = str(self.ipv6_dns[0] )
                 if self.debug: print("Resolved domain",d,"to IPv6\t", self.ipv6_dns)
                 if self.ipv6 == "web":
                     self.ipv6_real = urllib.request.urlopen('http://ipv6.ident.me').read().decode('utf8')
@@ -162,10 +162,10 @@ class strato_ddns:
                     if self.ipv6 != self.ipv6_dns:
                         self.ipv6_real=self.ipv6
                         change=True
-                        if self.debug: print("Static external IPv6 is\t\t\t",self.ipv6_real)
+                        if self.debug: print("Static external IPv6 is\t\t\t",self.ipv6_real, type(self.ipv6_real))
                     else:
                         self.ipv6_real=self.ipv6
-                        if self.debug: print("Static external IPv6 is up to date! -",self.ipv6_real)
+                        if self.debug: print("Static external IPv6 is up to date!\t",self.ipv6_real)
             
             # if change is True, a update is necessary
             if self.ipv4_dns != self.ipv4_real or self.ipv6_dns != self.ipv6_real:
