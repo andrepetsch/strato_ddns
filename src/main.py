@@ -114,6 +114,7 @@ class strato_ddns:
                             self.ipv6 = value
                     elif option == "ipv6_suffix":
                             ip = ipaddress.IPv6Address(value)
+                            print(str(ip.exploded))
                             self.ipv6_suffix = value
                     else:
                         # unexpected arguments in configuration
@@ -157,6 +158,12 @@ class strato_ddns:
                 if self.debug: print("Resolved domain",d,"to IPv6\t", self.ipv6_dns)
                 if self.ipv6 == "web":
                     self.ipv6_real = urllib.request.urlopen('http://ipv6.ident.me').read().decode('utf8')
+
+                    # IP address from which we take the network part ("prefix")
+                    net_addr = ipaddress.IPv6Address(self.ipv6_real)
+                    # IP address from which we take the host part (suffix)
+                    host_addr = ipaddress.IPv6Address(self.ipv6_suffix)
+                    self.ipv6_real=str(self.replace_ipv6_host_part(net_addr, host_addr))
                     if self.debug: print("Real external IPv6 is\t\t\t",self.ipv6_real)
                 else:
                     if self.ipv6 != self.ipv6_dns:
@@ -201,6 +208,29 @@ class strato_ddns:
                     else:
                         print("whatever:", update_response)
                 # TODO: log response
+            else:
+                if self.debug: print("All up to date!")
+
+    # ipv6 combination from https://techoverflow.net/2021/12/10/how-to-replace-host-part-of-ipv6-address-using-python/
+    def bitwise_and_ipv6(self, addr1, addr2):
+        result_int = int.from_bytes(addr1.packed, byteorder="big") & int.from_bytes(addr2.packed, byteorder="big")
+        return ipaddress.IPv6Address(result_int.to_bytes(16, byteorder="big"))
+    def bitwise_or_ipv6(self, addr1, addr2):
+        result_int = int.from_bytes(addr1.packed, byteorder="big") | int.from_bytes(addr2.packed, byteorder="big")
+        return ipaddress.IPv6Address(result_int.to_bytes(16, byteorder="big"))
+    def bitwise_xor_ipv6(self, addr1, addr2):
+        result_int = int.from_bytes(addr1.packed, byteorder="big") ^ int.from_bytes(addr2.packed, byteorder="big")
+        return ipaddress.IPv6Address(result_int.to_bytes(16, byteorder="big"))
+    def replace_ipv6_host_part(self, net_addr, host_addr, netmask_length=64):
+        # Compute bitmasks
+        prefix_network = ipaddress.IPv6Network(f"::/{netmask_length}")
+        hostmask = prefix_network.hostmask # ffff:ffff:ffff:ffff:: for /64
+        netmask = prefix_network.netmask # ::ffff:ffff:ffff:ffff for /64
+        # Compute address
+        net_part = self.bitwise_and_ipv6(net_addr, netmask)
+        host_part = self.bitwise_and_ipv6(host_addr, hostmask)
+        # Put together resulting IP
+        return self.bitwise_or_ipv6(net_part, host_part)
 
 
 if __name__ == '__main__':
