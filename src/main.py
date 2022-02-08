@@ -96,6 +96,9 @@ class strato_ddns:
                         self.domain= str(value).strip().split(',')
                     elif option == "nameserver":
                         self.nameservers= str(value).strip().split(',')
+                        # check each number fot ip-validation
+                        for n in self.nameservers:
+                            ip = ipaddress.ip_address(n)
                     elif option == "ipv4":
                         value = str(value).strip()
                         if value == "web":
