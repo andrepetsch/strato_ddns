@@ -78,7 +78,7 @@ class strato_ddns:
                 else:
                     c = l.split('=')
                     option = str(c[0]).strip()
-                    value = c[1]
+                    value = str(c[1]).strip()
                     
                     if self.debug: print("option:", option, "\tvalue:", value)
 
@@ -102,7 +102,7 @@ class strato_ddns:
                             self.ipv4 = value
                         else:
                             # parses to ip, throws error if no ip given
-                            ip = ipaddress.ip_address(value)
+                            ip = ipaddress.IPv4Address(value)
                             self.ipv4 = value                            
                     elif option == "ipv6":
                         value = str(value).strip()
@@ -110,10 +110,10 @@ class strato_ddns:
                             self.ipv6 = value
                         else:
                             # parses to ip, throws error if no ip given
-                            ip = ipaddress.ip_address(value)
+                            ip = ipaddress.IPv6Address(value)
                             self.ipv6 = value
                     elif option == "ipv6_suffix":
-                            ip = ipaddress.ip_address(value)
+                            ip = ipaddress.IPv6Address(value)
                             self.ipv6_suffix = value
                     else:
                         # unexpected arguments in configuration
