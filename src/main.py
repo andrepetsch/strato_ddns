@@ -30,6 +30,7 @@ class strato_ddns:
         self.ipv6_dns = ""
         self.ipv6_real = ""
         self.ipv6_suffix = ""
+        self.ipv6_netmask = 64
         self.nameservers=['8.8.8.8', '8.8.4.4', '2001:4860:4860::8888', '2001:4860:4860::8844']
 
         # read config
@@ -119,6 +120,11 @@ class strato_ddns:
                             ip = ipaddress.IPv6Address(value)
                             print(str(ip.exploded))
                             self.ipv6_suffix = value
+                    elif option == "ipv6_netmask":
+                        value = int(value)
+                        if value < 0 or value > 128:
+                            raise ValueError("Netmask out of valid values")
+                        self.ipv6_netmask = value
                     else:
                         # unexpected arguments in configuration
                         raise Exception("invalid configuration")
@@ -146,7 +152,11 @@ class strato_ddns:
 
                 # if ipv4==web -> lookup real ip, else use static
                 if self.ipv4 == "web":
-                    self.ipv4_real = urllib.request.urlopen('http://ipv4.ident.me').read().decode('utf8')
+                    try:
+                        self.ipv4_real = urllib.request.urlopen('http://ipv4.ident.me').read().decode('utf8')
+                    except:
+                        if self.debug:
+                            print("Could not get real IPv6 address, using looked up IPv6...")
                     if self.debug: print("Real external IPv4 is\t\t\t",self.ipv4_real)
                 else:
                     self.ipv4_real=self.ipv4
@@ -160,7 +170,11 @@ class strato_ddns:
                 else: self.ipv6_dns = str(self.ipv6_dns[0] )
                 if self.debug: print("Resolved domain",d,"to IPv6\t", self.ipv6_dns)
                 if self.ipv6 == "web":
-                    self.ipv6_real = urllib.request.urlopen('http://ipv6.ident.me').read().decode('utf8')
+                    try:
+                        self.ipv6_real = urllib.request.urlopen('http://ipv6.ident.me').read().decode('utf8')
+                    except:
+                        if self.debug:
+                            print("Could not get real IPv6 address, using looked up IPv6...")
 
                     # IP address from which we take the network part ("prefix")
                     net_addr = ipaddress.IPv6Address(self.ipv6_real)
@@ -219,7 +233,8 @@ class strato_ddns:
     def bitwise_xor_ipv6(self, addr1, addr2):
         result_int = int.from_bytes(addr1.packed, byteorder="big") ^ int.from_bytes(addr2.packed, byteorder="big")
         return ipaddress.IPv6Address(result_int.to_bytes(16, byteorder="big"))
-    def replace_ipv6_host_part(self, net_addr, host_addr, netmask_length=64):
+    def replace_ipv6_host_part(self, net_addr, host_addr):
+        netmask_length = self.ipv6_netmask
         # Compute bitmasks
         prefix_network = ipaddress.IPv6Network(f"::/{netmask_length}")
         hostmask = prefix_network.hostmask # ffff:ffff:ffff:ffff:: for /64
@@ -262,6 +277,6 @@ if __name__ == '__main__':
     s = strato_ddns(config_path=args.config, debug=debug, dryrun = args.dryrun)
     #while True:
     s.run()
-    #    time.sleep(1800)
+    #    time.sleep(600)
 
     
