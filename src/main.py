@@ -269,14 +269,22 @@ if __name__ == '__main__':
         action='store_true'
     )
 
+    parser.add_argument(
+        '--interval',
+        '-i',
+        help="interval to check an update in seconds",
+        type=int,
+        default=600
+    )
+
     args = parser.parse_args()
 
     debug = False
     if args.debug: debug = True
 
     s = strato_ddns(config_path=args.config, debug=debug, dryrun = args.dryrun)
-    #while True:
-    s.run()
-    #    time.sleep(600)
+    while True:
+        s.run()
+        time.sleep(args.interval)
 
     
