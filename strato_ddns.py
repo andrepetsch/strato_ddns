@@ -253,7 +253,7 @@ if __name__ == '__main__':
         '-c',
         help="configuration file",
         type=str,
-        default="./ddns.conf",
+        default="./strato_ddns.conf",
         required=False
         )
     parser.add_argument(
