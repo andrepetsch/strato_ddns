@@ -11,7 +11,7 @@ import base64
 
 class strato_ddns:
 
-    def __init__(self, config_path = "./strato_ddns.conf", debug = False, dryrun = False):
+    def __init__(self, config_path = "./ddns.conf", debug = False, dryrun = False):
 
         self.debug = debug
         self.dry = dryrun
@@ -253,7 +253,7 @@ if __name__ == '__main__':
         '-c',
         help="configuration file",
         type=str,
-        default="../strato_ddns.conf",
+        default="./ddns.conf",
         required=False
         )
     parser.add_argument(
