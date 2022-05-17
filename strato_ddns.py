@@ -283,8 +283,8 @@ if __name__ == '__main__':
     if args.debug: debug = True
 
     s = strato_ddns(config_path=args.config, debug=debug, dryrun = args.dryrun)
-    while True:
-        s.run()
-        time.sleep(args.interval)
+    #while True:
+    s.run()
+        #time.sleep(args.interval)
 
     
