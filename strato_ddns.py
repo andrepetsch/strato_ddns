@@ -144,8 +144,15 @@ class strato_ddns:
             if self.debug: print("\nSTART: update run for", d)    
             # prepare IPv4
             if self.ipv4 != "":
-                self.ipv4_dns = self.resolver.query(d, 'A')
-                if len(self.ipv4_dns) < 0: self.ipv4_dns = 'none'
+
+                # Lookup current dns ipv4
+                try:
+                    self.ipv4_dns = self.resolver.query(d, 'A')
+                    
+                except:
+                    if self.debug:
+                        print("Could not look up IPv4 address...")
+                if len(self.ipv4_dns) <= 0: self.ipv4_dns = 'none'
                 #elif len(self.ipv4_dns) >= 1: self.ipv4_dns = self.ipv4_dns[0]
                 else: self.ipv4_dns = str(self.ipv4_dns[0])
                 if self.debug: print("Resolved domain",d,"to IPv4\t", self.ipv4_dns)
@@ -164,8 +171,14 @@ class strato_ddns:
                     
             # prepare IPv6
             if self.ipv6 != "":
-                self.ipv6_dns = self.resolver.query(d, 'AAAA')
-                if len(self.ipv6_dns) < 0: self.ipv6_dns = 'none'
+
+                # Lookup ipv6 on DNS
+                try:
+                    self.ipv6_dns = self.resolver.query(d, 'AAAA')
+                except:
+                    if self.debug:
+                        print("Could not look up IPv6 address...")
+                if len(self.ipv6_dns) <= 0: self.ipv6_dns = 'none'
                 #elif len(self.ipv6_dns) >= 1: self.ipv6_dns = self.ipv6_dns[0]
                 else: self.ipv6_dns = str(self.ipv6_dns[0] )
                 if self.debug: print("Resolved domain",d,"to IPv6\t", self.ipv6_dns)
