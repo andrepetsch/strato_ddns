@@ -191,6 +191,8 @@ class strato_ddns:
                             print("Could not get real IPv6 address, using looked up IPv6...")
 
                     # IP address from which we take the network part ("prefix")
+                    if self.debug:
+                        print(f"REAL IPv6 ist {self.ipv6_real}")
                     net_addr = ipaddress.IPv6Address(self.ipv6_real)
                     # IP address from which we take the host part (suffix)
                     host_addr = ipaddress.IPv6Address(self.ipv6_suffix)
