@@ -5,6 +5,7 @@ import ipaddress
 import argparse
 from unittest import result
 import dns.resolver as resolver
+import dns
 import urllib.request
 import time
 import base64
@@ -147,7 +148,7 @@ class strato_ddns:
 
                 # Lookup current dns ipv4
                 try:
-                    self.ipv4_dns = self.resolver.query(d, 'A')
+                    self.ipv4_dns = self.resolver.resolve(d, rdtype=dns.rdatatype.A)#(d, 'A')
                     
                 except:
                     if self.debug:
@@ -174,7 +175,7 @@ class strato_ddns:
 
                 # Lookup ipv6 on DNS
                 try:
-                    self.ipv6_dns = self.resolver.query(d, 'AAAA')
+                    self.ipv6_dns = self.resolver.resolve(d, rdtype=dns.rdatatype.AAAA) #(d, 'AAAA')
                 except:
                     if self.debug:
                         print("Could not look up IPv6 address...")
