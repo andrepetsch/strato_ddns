@@ -6,7 +6,8 @@ import argparse
 from unittest import result
 import dns.resolver as resolver
 import dns
-import urllib.request
+# import urllib.request
+import requests
 import time
 import base64
 
@@ -161,7 +162,9 @@ class strato_ddns:
                 # if ipv4==web -> lookup real ip, else use static
                 if self.ipv4 == "web":
                     try:
-                        self.ipv4_real = urllib.request.urlopen('http://ipv4.ident.me').read().decode('utf8')
+                        resp = requests.get('http://ipv4.ident.me')
+                        resp.raise_for_status()
+                        self.ipv4_real = resp.text
                     except:
                         if self.debug:
                             print("Could not get real IPv6 address, using looked up IPv6...")
@@ -185,7 +188,9 @@ class strato_ddns:
                 if self.debug: print("Resolved domain",d,"to IPv6\t", self.ipv6_dns)
                 if self.ipv6 == "web":
                     try:
-                        self.ipv6_real = urllib.request.urlopen('http://ipv6.ident.me').read().decode('utf8')
+                        resp = requests.get('http://ipv6.ident.me')
+                        resp.raise_for_status()
+                        self.ipv6_real = resp.text
                     except:
                         if self.debug:
                             print("Could not get real IPv6 address, using looked up IPv6...")
