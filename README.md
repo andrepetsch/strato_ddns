@@ -27,5 +27,20 @@ A sample configuration is given.
 - `--debug/-d`: get detailed information to find errors
 - `--dryrun/-t`: doesn't do any change, best use with `-d` to find errors without triggering the abuseblocker
 
+## Docker
+Use the following steps to run the script in docker:
+
+1. Install docker on your machine (https://docs.docker.com/get-docker/)
+2. Adjust the docker container to your needs
+   * Update the commandline arguments and cron-shedule in `Dockerfile`
+3. Build your docker image:
+   1. Open the directory of the project.
+   2. Run `docker build -t strato_ddns:latest .`
+4. Update the configuration file.
+5. Run the container:
+   * Use network `host` or ensure that the container supports ipv6 if needed.
+   *  `docker run -d --name strato-ddns-container --network=host
+    -v /path/to/your/config:/etc/config --restart unless-stopped strato_ddns:latest`
+
 ## What is next?
 Until now this tool runs as a program only, in a crontab e.g.. Next step will be to make it useable as a daemon.
