@@ -27,6 +27,8 @@ class strato_ddns:
 
         self.ipv4_dns = ""
         self.ipv4_real = ""
+        self.ipv4_resolver = "4.tnedi.me"
+        self.ipv6_resolver = "6.tnedi.me"
         self.ipv6 = "" # web?
         self.ipv6_dns = ""
         self.ipv6_real = ""
@@ -126,6 +128,12 @@ class strato_ddns:
                         if value < 0 or value > 128:
                             raise ValueError("Netmask out of valid values")
                         self.ipv6_netmask = value
+                    elif option == "ipv4_resolver":
+                        value = str(value).strip()
+                        self.ipv4_resolver = value
+                    elif option == "ipv6_resolver":
+                        value = str(value).strip()
+                        self.ipv6_resolver = value
                     else:
                         # unexpected arguments in configuration
                         raise Exception("invalid configuration")
@@ -161,7 +169,7 @@ class strato_ddns:
                 # if ipv4==web -> lookup real ip, else use static
                 if self.ipv4 == "web":
                     try:
-                        self.ipv4_real = urllib.request.urlopen('http://ipv4.ident.me').read().decode('utf8')
+                        self.ipv4_real = urllib.request.urlopen(f"http://{self.ipv4_resolver}").read().decode('utf8')
                     except:
                         if self.debug:
                             print("Could not get real IPv4 address, using looked up IPv4...")
@@ -185,7 +193,7 @@ class strato_ddns:
                 if self.info: print("Resolved domain",d,"to IPv6\t", self.ipv6_dns)
                 if self.ipv6 == "web":
                     try:
-                        self.ipv6_real = urllib.request.urlopen('http://ipv6.ident.me').read().decode('utf8')
+                        self.ipv6_real = urllib.request.urlopen(f"http://{self.ipv6_resolver}").read().decode('utf8')
                     except:
                         if self.debug:
                             print("Could not get real IPv6 address, using looked up IPv6...")
@@ -302,4 +310,3 @@ if __name__ == '__main__':
     s = strato_ddns(config_path=args.config, debug=debug, dryrun = args.dryrun, info=info)
 
     s.run()
-
